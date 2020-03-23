@@ -24,7 +24,13 @@ describe('Endpoint tests', () => {
     //The ids of both are stored in eventId and bookingId
     //###########################
     beforeEach((done) => {
-        let event = new Event({ name: "Test Event", capacity: 10, startDate: 1590840000000, endDate: 1590854400000});
+        let event = new Event({
+             name: "Test Event",
+              capacity: 10, 
+              startDate: 1590840000000, 
+              endDate: 1590854400000
+
+            });
 
         Event.deleteMany({}, (err) => {
             Booking.deleteMany({}, (err) => {
@@ -49,4 +55,100 @@ describe('Endpoint tests', () => {
         console.log("Our booking has id " + bookingId);
         chai.expect(1).to.equal(1);
     });
+
+
+    describe("endpoint #1 test", ()=> {
+        it('Should make a GET request', (done) => {
+            chai.request('http://localhost:3000/api/v1/events').get('/').end((err, res) => {
+                chai.expect(res).to.have.status(200);
+                done()
+            })
+        })
+    })
+    describe("endpoint #2 test", ()=> {
+        it('Should make a GET specific request', (done) => {
+            chai.request('http://localhost:3000/api/v1').get('/events/' + eventId).end((err, res) => {
+                chai.expect(res).to.have.status(200);
+                done()
+            })
+        })
+    })
+    describe("endpoint #3 test", ()=> {
+        it('Should make a POST request', function(done) {
+            chai.request('http://localhost:3000/api/v1').post('/events/').type('JSON').send({
+                "name": "MartianMars",
+                "capacity": 100000,
+                "startDate": "2020-03-14T02:02:02.000Z",
+                "endDate": "2020-03-25T08:05:03.000Z",
+                "_id": "5e78b06eccacf926ec9b06a2"
+            }).end((err, res) => {
+                chai.expect(res).to.have.status(201);
+                done();
+
+            })
+
+        })
+    })
+    
+
+    describe("\nDelete tests", ()=> {
+
+        describe("endpoint #8 test",() => {
+            it('Should make a DELETE a specific booking', (done) => {
+                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId + "/bookings/" + bookingId).auth("admin", "secret").end((err, res) => {
+                    chai.expect(res).to.have.status(200);
+                    done();
+                })
+            })
+        })
+
+
+        describe("endpoint #4 test", ()=> {
+            it('Should make a DELETE a specific request', (done) => {
+                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId + "/bookings/" + bookingId).auth("admin", "secret").end(),
+                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId).auth("admin", "secret").end((err, res) => {
+                    chai.expect(res).to.have.status(200);
+                    done()
+                })
+            })
+        })
+
+    })
+    describe("\nendpoint #5 test", ()=> {
+        it('Should make a GET all bookings for a specific event', (done) => {
+            chai.request('http://localhost:3000/api/v1').get('/events/' + eventId + '/bookings').end((err, res) => {
+                chai.expect(res).to.have.status(200);
+                done()
+            })
+        })
+    })
+    describe("endpoint #6 test", ()=> {
+        it('Should make a GET a specific booking from a specific event', (done) => {
+            chai.request('http://localhost:3000/api/v1').get('/events/' + eventId + '/bookings/' + bookingId).end((err, res) => {
+                chai.expect(res).to.have.status(200);
+                done()
+            })
+        })
+    })
+    describe("endpoint #7 test", ()=> {
+        it('Should make a POST request to make a booking for a specific event', function(done){
+            chai.request('http://localhost:3000/api/v1').post('/events/'+ eventId + "/bookings").type('JSON').send({
+                "firstName": "Emmi",
+                "lastName": "Kjellinn",
+                "tel": 4658734,
+                "email": "IHateThisSyntax@wtf.com",
+                "spots": 2
+            }).end((err, res) => {
+                chai.expect(res).to.have.status(201);
+                done();
+            })
+    
+        })
+    })
+
+
+
+
+
+
 });

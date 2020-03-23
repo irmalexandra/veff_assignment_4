@@ -1,4 +1,5 @@
 var express = require('express');
+
 var mongoose = require('mongoose');
 var Event = require('./models/event');
 var Booking = require('./models/booking');
@@ -7,13 +8,27 @@ var utility = require('./utility/objectIdChecker');
 
 //Import a body parser module to be able to access the request body as json
 const bodyParser = require('body-parser');
-
+const authenticator = require('express-basic-auth');
 const cors = require('cors');
-
+const sha256 = require('js-sha256');
 const apiPath = '/api/';
 const version = 'v1';
 var mongoURI = 'mongodb://localhost:27017/eventbackend';
 var port = process.env.PORT || 3000;
+
+// Fake DB
+
+users = {
+    users:{'admin': 'secret'} //2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b
+}
+
+function myAuthorizer(user, password){
+    if(user === 'admin' && sha256(password) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b'){
+        return true
+    }
+    return false
+}
+
 
 // Connect to MongoDB
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }, function (err) {
@@ -27,9 +42,18 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }, 
 
 // Create Express app
 var app = express();
+//Enable auth for all following endpoints
+
+
+
 
 // Parse requests of content-type 'application/json'
 app.use(bodyParser.json());
+//Tell express to use authenticator guy
+
+
+
+
 
 //Tell express to use cors -- enables CORS for this backend
 app.use(cors());
@@ -78,11 +102,13 @@ app.post(apiPath + version + '/events', (req, res) => {
     });
 });
 
-app.delete(apiPath + version + '/events/:eventId', (req, res) => {
+
+app.delete(apiPath + version + '/events/:eventId', authenticator({authorizer: myAuthorizer}), (req, res) => {
     if (!utility.isValidObjectID(req.params.eventId)) {
         return res.status(404).json({ "error": "Event not found!" });
     }
 
+    
     Booking.find({ eventId: req.params.eventId }, (err, bookings) => {
         if (err) { return res.status(500).json({ "message": "Internal server error." }); }
 
@@ -180,7 +206,7 @@ app.post(apiPath + version + '/events/:eventId/bookings', (req, res) => {
     });
 });
 
-app.delete(apiPath + version + '/events/:eventId/bookings/:bookingId', (req, res) => {
+app.delete(apiPath + version + '/events/:eventId/bookings/:bookingId', authenticator({authorizer: myAuthorizer}) ,(req, res) => {
     if (!utility.isValidObjectID(req.params.eventId)) {
         return res.status(404).json({"message": "Event not found!"});
     }
@@ -200,7 +226,7 @@ app.delete(apiPath + version + '/events/:eventId/bookings/:bookingId', (req, res
 });
 
 //Default: Not supported
-app.route('*', (req, res) => {
+app.use('*', (req, res) => {
     res.status(405).send('Operation not supported.');
 });
 
