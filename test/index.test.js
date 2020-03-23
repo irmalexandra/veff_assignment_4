@@ -61,6 +61,8 @@ describe('Endpoint tests', () => {
         it('Should make a GET request', (done) => {
             chai.request('http://localhost:3000/api/v1/events').get('/').end((err, res) => {
                 chai.expect(res).to.have.status(200);
+                chai.expect(res.body).to.be.json
+                //chai.expect(res.body)
                 done()
             })
         })
@@ -144,8 +146,50 @@ describe('Endpoint tests', () => {
             })
     
         })
+        it('Should fail a POST request to make a  booking for a specific event due to lack of telephone nr and email', function(done){
+            chai.request('http://localhost:3000/api/v1').post('/events/'+ eventId + "/bookings").type('JSON').send({
+                "firstName": "Emmi",
+                "lastName": "Kjellinn",
+                "spots": 2
+            }).end((err, res) => {
+                chai.expect(res).to.have.status(400);
+                done();
+            })
+        })
+        it('Should fail a POST request to make a  booking for a specific event due to lack of spots selected', function(done){
+            chai.request('http://localhost:3000/api/v1').post('/events/'+ eventId + "/bookings").type('JSON').send({
+                "firstName": "Emmi",
+                "lastName": "Kjellinn",
+                "tel": 4658734,
+                "email": "IHateThisSyntax@wtf.com"
+            }).end((err, res) => {
+                chai.expect(res).to.have.status(400);
+                done();
+            })
+        })
+        it('Should fail a POST due to event id being wrong AF', function(done){
+            chai.request('http://localhost:3000/api/v1').post('/events/'+ eventId + "23cool54/bookings").type('JSON').send({
+                "firstName": "Emmi",
+                "lastName": "Kjellinn",
+                "tel": 4658734,
+                "email": "IHateThisSyntax@wtf.com",
+                "spots": 2
+            }).end((err, res) => {
+                chai.expect(res).to.have.status(404);
+                done();
+            })
+    
+        })
     })
-
+    describe("Test * route", ()=> {
+        it('A GET request to where ever ¯\\_(ツ)_/¯', function(done){
+            chai.request('http://localhost:3000/api/v1/fd').get('/events/' + eventId + '/bookings/' + bookingId).end((err, res) => {
+                chai.expect(res).to.have.status(405);
+                done()
+            })
+    
+        })
+    })
 
 
 
