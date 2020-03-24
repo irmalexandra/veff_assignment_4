@@ -18,12 +18,16 @@ var port = process.env.PORT || 3000;
 
 // Fake DB
 
-users = {
-    users:{'admin': 'secret'} //2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b
-}
+
 
 function myAuthorizer(user, password){
-    if(user === 'admin' && sha256(password) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b'){
+
+    let buffUser = new Buffer.from(user, 'base64')
+    let decodedUser = buffUser.toString('utf8')
+    let buffPassword = new Buffer.from(password, 'base64')
+    let decodedPassword = buffPassword.toString('utf8')
+
+    if(decodedUser === 'admin' && sha256(decodedPassword) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b'){
         return true
     }
     return false
@@ -207,6 +211,7 @@ app.post(apiPath + version + '/events/:eventId/bookings', (req, res) => {
 });
 
 app.delete(apiPath + version + '/events/:eventId/bookings/:bookingId', authenticator({authorizer: myAuthorizer}) ,(req, res) => {
+    
     if (!utility.isValidObjectID(req.params.eventId)) {
         return res.status(404).json({"message": "Event not found!"});
     }
