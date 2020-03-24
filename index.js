@@ -21,13 +21,7 @@ var port = process.env.PORT || 3000;
 
 
 function myAuthorizer(user, password){
-
-    let buffUser = new Buffer.from(user, 'base64')
-    let decodedUser = buffUser.toString('utf8')
-    let buffPassword = new Buffer.from(password, 'base64')
-    let decodedPassword = buffPassword.toString('utf8')
-
-    if(decodedUser === 'admin' && sha256(decodedPassword) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b'){
+    if(Buffer.from(user, 'base64').toString('utf8') === 'admin' && sha256(Buffer.from(password, 'base64').toString('utf8')) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b'){
         return true
     }
     return false
@@ -46,18 +40,9 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }, 
 
 // Create Express app
 var app = express();
-//Enable auth for all following endpoints
-
-
-
 
 // Parse requests of content-type 'application/json'
 app.use(bodyParser.json());
-//Tell express to use authenticator guy
-
-
-
-
 
 //Tell express to use cors -- enables CORS for this backend
 app.use(cors());
