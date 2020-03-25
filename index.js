@@ -16,12 +16,16 @@ const version = 'v1';
 var mongoURI = 'mongodb://localhost:27017/eventbackend';
 var port = process.env.PORT || 3000;
 
-// Fake DB
+// Authorizer function
+function myAuthorizer(credentials){
+    let decodedCreds = Buffer.from(credentials, 'base64').toString('utf8')
 
+    let credArr = decodedCreds.split(":")
 
+    let user = credArr[0]
+    let password = credArr[1]
 
-function myAuthorizer(user, password){
-    if(Buffer.from(user, 'base64').toString('utf8') === 'admin' && sha256(Buffer.from(password, 'base64').toString('utf8')) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b'){
+    if((user === 'admin' && sha256(password) == '2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b')){
         return true
     }
     return false
