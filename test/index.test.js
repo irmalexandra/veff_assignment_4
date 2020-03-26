@@ -167,14 +167,14 @@ describe('Endpoint tests', () => {
     describe("Delete tests", ()=> {
         describe("endpoint #8 test", () => {
             it('Delete a specific Booking for a specific Event with correct credentials', (done) => {
-                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId + "/bookings/" + bookingId).auth(Buffer.from('admin:secret', 'binary').toString('base64')).end((err, res) => {
+                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId + "/bookings/" + bookingId).auth("admin", "secret").end((err, res) => {
                     chai.expect(res).to.have.status(200);
                     done();
                 })
             })
         
             it('Delete a specific Booking for a specific Event with incorrect credentials', (done) => {
-                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId + "/bookings/" + bookingId).auth(Buffer.from('notadmin:notsecret', 'binary').toString('base64')).end((err, res) => {
+                chai.request('http://localhost:3000/api/v1').delete('/events/' + eventId + "/bookings/" + bookingId).auth("notadmin", "notsecret").end((err, res) => {
                     chai.expect(res).to.have.status(401);
                     done();
                  })
